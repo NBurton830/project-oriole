@@ -1,0 +1,51 @@
+# Group-chat stack hosted on this Mac. Data persists in a named volume.
+# Only the proxy (127.0.0.1:8090) is meant to be exposed — via the Cloudflare tunnel.
+# Port 8008 is for the bot and the scripts on this Mac; it shares that port with
+# the test harness, so run one stack at a time.
+name: synapse-groupchat
+
+services:
+  homeserver:
+    image: matrixdotorg/synapse:latest
+    restart: unless-stopped
+    environment:
+      SYNAPSE_CONFIG_PATH: /config/homeserver.yaml
+      UID: "0"
+      GID: "0"
+    entrypoint:
+      - /bin/sh
+      - -c
+      - python -m synapse.app.homeserver --config-path /config/homeserver.yaml --generate-keys && exec /start.py run
+    volumes:
+      - ../.local/synapse:/config:ro
+      - homeserver-data:/data
+    ports:
+      - "127.0.0.1:8008:8008"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8008/health"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+  element:
+    image: vectorim/element-web:latest
+    restart: unless-stopped
+    environment:
+      ELEMENT_WEB_PORT: "80"
+
+  proxy:
+    image: nginx:alpine
+    restart: unless-stopped
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ../.local/element:/element-config:ro
+    ports:
+      - "127.0.0.1:8090:80"
+    depends_on:
+      homeserver:
+        condition: service_healthy
+      element:
+        condition: service_started
+
+volumes:
+  homeserver-data:

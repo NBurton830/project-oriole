@@ -1,0 +1,45 @@
+# Agent configuration for personal local use (schema: specs.md §7.1).
+# Model: any OpenAI-compatible server. Default is Ollama on this machine.
+version: "1.0"
+
+matrix:
+  homeserver_url: "http://localhost:8008"
+  user_id: "@synapse:test.local"
+  device_id: "SYNAPSE_CORE_01"
+  access_token: "${MATRIX_ACCESS_TOKEN}"
+  storage:
+    crypto_store_path: "./.local/crypto"
+    crypto_passphrase: "${CRYPTO_STORE_PASSPHRASE}"
+    state_store_path: "./.local/state.db"
+  # permissive: answer people even before their devices are cross-signed.
+  verification_policy: "permissive"
+
+inference:
+  provider: "openai-compatible"
+  base_url: "${SYNAPSE_INFERENCE_BASE_URL}"
+  api_key: "${INFERENCE_API_KEY}"
+  model_name: "${SYNAPSE_MODEL}"
+  parameters:
+    temperature: 0.6
+    top_p: 0.9
+    max_tokens: 1024
+    presence_penalty: 0.1
+    frequency_penalty: 0.1
+  timeout_seconds: 120     # local models can be slow to load on first use
+  retry:
+    max_attempts: 3
+    backoff_factor: 2.0
+
+orchestration:
+  context:
+    max_history_events: 50
+    token_budget: 3072       # Ollama runs models with a 4096-token window; leave room for the reply
+    include_reactions: true
+  turn_gating:
+    deterministic_only: false
+    command_prefixes: ["!synapse", "!ai"]
+    cooldown_seconds: 45
+    semantic_deadlock_threshold: 0.75
+    silence_token: "[SILENCE]"
+  threading:
+    reply_in_thread: "auto"

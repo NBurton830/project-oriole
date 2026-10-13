@@ -1,0 +1,37 @@
+# Homeserver config for the hosted group chat. `npm run groupchat:init` copies this
+# to .local/synapse/homeserver.yaml and fills in the __SECRET__ placeholders.
+server_name: "test.local"
+# No public_baseurl: setting one makes Synapse tell clients to switch to it after
+# login, and friends reach this server through a tunnel URL that changes every run.
+pid_file: /data/homeserver.pid
+report_stats: false
+
+listeners:
+  - port: 8008
+    tls: false
+    type: http
+    x_forwarded: true
+    bind_addresses: ["0.0.0.0"]
+    resources:
+      - names: [client]
+        compress: false
+
+database:
+  name: sqlite3
+  args:
+    database: /data/homeserver.db
+
+media_store_path: /data/media_store
+signing_key_path: /data/test.local.signing.key
+trusted_key_servers: []
+suppress_key_server_warning: true
+
+# No federation and no self sign-up: only accounts created with
+# `npm run groupchat:add-user` can sign in.
+federation_domain_whitelist: []
+enable_registration: false
+registration_shared_secret: "__REGISTRATION_SECRET__"
+macaroon_secret_key: "__MACAROON_SECRET__"
+form_secret: "__FORM_SECRET__"
+
+encryption_enabled_by_default_for_room_type: all

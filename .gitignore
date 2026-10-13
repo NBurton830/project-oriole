@@ -1,0 +1,9 @@
+node_modules/
+.harness/
+test-results/
+playwright-report/
+.local/
+
+# Kept local only: specification and test suite
+specs.md
+tests/

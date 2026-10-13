@@ -1,0 +1,31 @@
+{
+  "name": "synapse-agent-e2e",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "@playwright/test": "^1.64.0",
+    "@types/node": "^26.6.5",
+    "typescript": "^7.0.2"
+  },
+  "scripts": {
+    "harness:up": "docker compose -f tests/harness/docker-compose.yml up -d --wait homeserver",
+    "harness:up:ui": "docker compose -f tests/harness/docker-compose.yml --profile ui up -d --wait",
+    "harness:down": "docker compose -f tests/harness/docker-compose.yml --profile ui down -v",
+    "test:e2e": "playwright test -c tests/playwright.config.ts --project=protocol",
+    "test:ui": "ELEMENT_URL=http://localhost:8080 playwright test -c tests/playwright.config.ts --project=element-web",
+    "test:list": "playwright test -c tests/playwright.config.ts --list",
+    "typecheck": "tsc -p tsconfig.json",
+    "agent": "node src/main.ts",
+    "test:all": "ELEMENT_URL=http://localhost:8080 playwright test -c tests/playwright.config.ts",
+    "groupchat:init": "node scripts/groupchat.ts init",
+    "groupchat:up": "node scripts/groupchat.ts init && docker compose -f local/docker-compose.yml up -d --wait",
+    "groupchat:down": "docker compose -f local/docker-compose.yml down",
+    "groupchat:add-user": "node scripts/groupchat.ts add-user",
+    "groupchat": "node scripts/groupchat.ts start"
+  },
+  "dependencies": {
+    "marked": "^18.1.1",
+    "yaml": "^2.9.1",
+    "matrix-js-sdk": "^43.0.0"
+  }
+}
