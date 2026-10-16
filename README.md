@@ -41,6 +41,30 @@ Stop with Ctrl+C, then `npm run groupchat:down`. Accounts and history are kept.
 To use another model: `SYNAPSE_MODEL=llama3.1:8b npm run groupchat`. To use another
 OpenAI-compatible server, also set `SYNAPSE_INFERENCE_BASE_URL` and `INFERENCE_API_KEY`.
 
+## Tuning when it jumps in
+
+While `npm run groupchat` runs, open **http://localhost:9470** on the same computer. Choose a
+personality and save. Changes apply to the next message, with no restart:
+
+| | Quiet | Normal (default) | Chatty |
+| --- | --- | --- | --- |
+| Jumps in uninvited | never | when 2+ people disagree | easily, even for one person |
+| Cooldown after speaking | 45s | 45s | 15s |
+| Share of heated messages needed | — | 3 of 4 | 2 of 4 |
+
+You can also fine-tune:
+- **Memory window:** how many messages it reads (4 or more)
+- **Minimum people**
+- **Disagreement sensitivity**
+- **Cooldown**
+- **Patience:** how long it waits after the last message
+- **Conflict and agreement words:** extra words in any language, added to the built-in list
+- **Nicknames:** names like `ai` that call the bot when they start a message
+
+Settings are saved to `.local/settings.yaml`. The page is reachable only from this computer, not
+through the public link. The same keys can go under `orchestration.turn_gating` in
+`local/agent.config.yaml`. Dashboard values take precedence over the file, and the file over the preset.
+
 ## Notes
 
 - **Secrets stay local.** They're generated on first run into `.local/`, which git ignores.

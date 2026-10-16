@@ -1,5 +1,8 @@
 import fs from 'node:fs';
 import YAML from 'yaml';
+import type { DirectoryEntry, KnowledgeDoc } from './clearance.ts';
+import { resolveJumpInSettings } from './settings.ts';
+import type { ToolsConfig } from './tool-runtime.ts';
 
 /** Production configuration schema — specs.md §7.1. */
 export interface Config {
@@ -37,10 +40,40 @@ export interface Config {
       cooldown_seconds: number;
       semantic_deadlock_threshold: number;
       silence_token: string;
+      /** Jump-in settings (src/settings.ts); all optional, presets fill the rest. */
+      jump_in?: 'quiet' | 'normal' | 'chatty';
+      window_size?: number;
+      min_speakers?: number;
+      settle_seconds?: number;
+      friction_words?: string[];
+      consensus_words?: string[];
+      nicknames?: string[];
     };
     threading: { reply_in_thread: 'always' | 'matching' | 'auto' };
   };
   telemetry?: { metrics_port?: number };
+  // ---------------------------------------------------------------- specs-two (all optional)
+  /** P2 / V7 / V20: who people are, matched by MXID regex. */
+  directory?: DirectoryEntry[];
+  /** V7: retrievable documents, each with an optional clearance. */
+  knowledge?: KnowledgeDoc[];
+  /** V9 / V14 / V17: tools the model may call. */
+  tools?: ToolsConfig;
+  /** V11: signed invariants file and its HMAC key. */
+  invariants?: { path: string; signing_key: string };
+  /** V6 / table #2. */
+  ingestion?: {
+    max_event_tokens?: number;
+    entropy_bits_per_char?: number;
+    user_token_quota_per_minute?: number;
+    stale_after_seconds?: number;
+  };
+  /** V16. */
+  automation?: { bot_user_patterns?: string[]; max_hop_count?: number };
+  /** V19. */
+  affect?: { stress_threshold?: number };
+  /** Decision log (src/activity-log.ts); omitted = no file. Never contains message text. */
+  logging?: { activity_log_dir: string; retention_days?: number };
 }
 
 /**
@@ -67,6 +100,8 @@ function expand(node: unknown): unknown {
 export function loadConfig(path: string): Config {
   const config = expand(YAML.parse(fs.readFileSync(path, 'utf8'))) as Config;
   config.matrix.password ??= process.env.MATRIX_PASSWORD_FILE || process.env.MATRIX_PASSWORD ? env('MATRIX_PASSWORD') : undefined;
+  // Fail fast with every problem listed, rather than misbehaving later.
+  resolveJumpInSettings(config.orchestration.turn_gating as unknown as Record<string, unknown>);
   if (process.env.SYNAPSE_METRICS_PORT) {
     config.telemetry = { ...config.telemetry, metrics_port: Number(process.env.SYNAPSE_METRICS_PORT) };
   }
