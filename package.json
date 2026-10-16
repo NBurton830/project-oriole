@@ -16,12 +16,19 @@
     "test:list": "playwright test -c tests/playwright.config.ts --list",
     "typecheck": "tsc -p tsconfig.json",
     "agent": "node src/main.ts",
-    "test:all": "ELEMENT_URL=http://localhost:8080 playwright test -c tests/playwright.config.ts",
+    "test:all": "ELEMENT_URL=http://localhost:8080 playwright test -c tests/playwright.config.ts --project=protocol --project=jumpin-live --project=activity-log-live --project=specs-two-live --project=element-web",
     "groupchat:init": "node scripts/groupchat.ts init",
     "groupchat:up": "node scripts/groupchat.ts init && docker compose -f local/docker-compose.yml up -d --wait",
     "groupchat:down": "docker compose -f local/docker-compose.yml down",
     "groupchat:add-user": "node scripts/groupchat.ts add-user",
-    "groupchat": "node scripts/groupchat.ts start"
+    "groupchat": "node scripts/groupchat.ts start",
+    "test:jumpin": "playwright test -c tests/jumpin-settings/playwright.config.ts",
+    "test:jumpin:live": "playwright test -c tests/playwright.config.ts --project=jumpin-live",
+    "test:activity-log": "playwright test -c tests/activity-log/playwright.config.ts",
+    "test:activity-log:live": "playwright test -c tests/playwright.config.ts --project=activity-log-live",
+    "test:specs-two": "playwright test -c tests/specs-two/playwright.config.ts",
+    "test:specs-two:live": "playwright test -c tests/playwright.config.ts --project=specs-two-live",
+    "test:rehearsal": "AGENT_CMD=\"node src/main.ts tests/manual-rehearsal/agent.config.yaml\" playwright test -c tests/playwright.config.ts --project=manual-rehearsal"
   },
   "dependencies": {
     "marked": "^18.1.1",
