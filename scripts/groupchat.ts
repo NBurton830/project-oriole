@@ -131,6 +131,8 @@ async function start() {
       INFERENCE_API_KEY: process.env.INFERENCE_API_KEY ?? 'ollama',
       SYNAPSE_INFERENCE_BASE_URL: baseUrl,
       SYNAPSE_MODEL: model,
+      SYNAPSE_DASHBOARD_PORT: process.env.SYNAPSE_DASHBOARD_PORT ?? '9470',
+      SYNAPSE_SETTINGS_PATH: path.join(stateDir, 'settings.yaml'),
     },
   });
   children.push(agent);
@@ -143,6 +145,7 @@ async function start() {
   console.log(`
   Group chat is live: ${tunnel.url}
   Bot: ${bot.userId} (model ${model})
+  Settings (this computer only): http://localhost:${process.env.SYNAPSE_DASHBOARD_PORT ?? '9470'}
   Share that link with friends. It changes every time you run this command.
   Press Ctrl+C to stop.
 `);

@@ -38,8 +38,14 @@ orchestration:
   turn_gating:
     deterministic_only: false
     command_prefixes: ["!synapse", "!ai"]
-    cooldown_seconds: 45
-    semantic_deadlock_threshold: 0.75
+    # Jump-in behaviour (cooldown, sensitivity, …) comes from the preset chosen on the
+    # settings page (http://localhost:9470). Setting a value here pins it for every preset.
     silence_token: "[SILENCE]"
   threading:
     reply_in_thread: "auto"
+
+# Decision log: what the bot did with each message and why. Never contains
+# message text. One file per day; files older than retention_days are deleted.
+logging:
+  activity_log_dir: "./.local/logs"
+  retention_days: 14

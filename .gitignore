@@ -4,6 +4,13 @@ test-results/
 playwright-report/
 .local/
 
+# Run output and machine-specific files
+*.log
+.DS_Store
+.env
+.env.*
+
 # Kept local only: specification and test suite
 specs.md
+specs-two.md
 tests/
